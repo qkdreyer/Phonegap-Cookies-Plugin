@@ -34,13 +34,23 @@ function Cookies() {
 }
 
 /**
- * Get device info
+ * Clears all of the cookies in the application's cookie jar.
  *
  * @param {Function} successCallback The function to call when cookies cleared successfully
  * @param {Function} errorCallback The function to call when there was an error (OPTIONAL)
  */
 Cookies.prototype.clear = function(successCallback, errorCallback) {
     exec(successCallback, errorCallback, "Cookies", "clear", []);
+};
+
+/**
+ * Sets the value of a cookie using the given options.
+ * @param options
+ * @param successCallback
+ * @param errorCallback
+ */
+Cookies.prototype.setCookie = function(options, successCallback, errorCallback) {
+    exec(successCallback, errorCallback, "Cookies", "setCookie", [options]);
 };
 
 module.exports = new Cookies();

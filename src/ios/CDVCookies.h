@@ -11,5 +11,6 @@
 @interface CDVCookies : CDVPlugin
 
 - (void)clear:(CDVInvokedUrlCommand*)command;
+- (void)setCookie:(CDVInvokedUrlCommand*)command;
 
 @end

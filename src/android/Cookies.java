@@ -26,19 +26,25 @@
 
 package com.bez4pieci.cookies;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import android.util.Log;
+import android.webkit.CookieManager;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import android.util.Log;
-import android.webkit.CookieManager;
+import org.json.JSONObject;
 
 public class Cookies extends CordovaPlugin {
-	
-	private final String TAG = "CookiesPlugin";
-	
-	@Override
+
+    private final static String TAG = "CookiesPlugin";
+
+    private final static String DEFAULT_PROTOCOL = "http";
+    private final static int DEFAULT_PORT = 80;
+
+    @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         if ("clear".equals(action)) {
             this.clear();
@@ -47,11 +53,60 @@ public class Cookies extends CordovaPlugin {
         }
         return false;  // Returning false results in a "MethodNotFound" error.
     }
-	
-	public void clear() {
-		Log.v(TAG, "Clearing cookies...");
+
+    public void clear() {
+        Log.v(TAG, "Clearing cookies...");
         CookieManager.getInstance().removeAllCookie();
     }
-	
 
+    public void setCookie(String action, JSONArray args, CallbackContext callbackContext) {
+        Log.v(TAG, "Setting cookie");
+        if (args.length() == 0) {
+            System.err.println("Exception: No Arguments passed");
+        } else {
+            try {
+                JSONObject options = args.getJSONObject(0);
+
+                String protocol = DEFAULT_PROTOCOL;
+                String host = null;
+                int port = DEFAULT_PORT;
+                String path = null;
+
+                // Set the protocol
+                if ( options.has("protocol") ) {
+                    protocol = options.getString("protocol");
+                }
+
+                // Set the domain/host
+                if (options.has("domain")) {
+                    host = options.getString("domain");
+                } else if (options.has("host")) {
+                    host = options.getString("host");
+                }
+
+                // Set the port
+                if (options.has("port")) {
+                    port = options.getInt("port");
+                }
+
+                // Set the file/path
+                if (options.has("file")) {
+                    path = options.getString("file");
+                } else if (options.has("path")) {
+                    path = options.getString("path");
+                }
+
+                URL url = new URL(protocol, host, port, path);
+
+                CookieManager.getInstance().setCookie(
+                    url.toString(),
+                    options.optString("value")
+                );
+            } catch (JSONException e) {
+                Log.e(TAG, "Exception while setting cookie", e);
+            } catch (MalformedURLException e) {
+                Log.e(TAG, "Exception while setting cookie", e);
+            }
+        }
+    }
 }

@@ -40,4 +40,43 @@
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+-(void)setCookie:(CDVInvokedUrlCommand*)command
+{
+    NSMutableDictionary* options = [command.arguments objectAtIndex:0];
+    NSDictionary *properties = [self mapCookieProperties:options];
+    NSLog(@"Setting cookie with properties: %@", properties);
+
+    NSHTTPCookie *cookie;
+    NSHTTPCookieStorage *cookieJar = [NSHTTPCookieStorage sharedHTTPCookieStorage];
+    cookie = [NSHTTPCookie cookieWithProperties:properties];
+    [cookieJar setCookie:cookie];
+}
+
+-(NSDictionary*)mapCookieProperties:(NSDictionary*)options {
+    NSDictionary *cookiePropertiesMap = @{
+        @"comment": NSHTTPCookieComment,
+        @"commentUrl": NSHTTPCookieCommentURL,
+        @"discard": NSHTTPCookieDiscard,
+        @"domain": NSHTTPCookieDomain,
+        @"expires": NSHTTPCookieExpires,
+        @"maximumAge": NSHTTPCookieMaximumAge,
+        @"name": NSHTTPCookieName,
+        @"originUrl": NSHTTPCookieOriginURL,
+        @"path": NSHTTPCookiePath,
+        @"port": NSHTTPCookiePort,
+        @"secure": NSHTTPCookieSecure,
+        @"value": NSHTTPCookieValue,
+        @"version": NSHTTPCookieVersion,
+    };
+    NSMutableDictionary* properties = [NSMutableDictionary dictionary];
+    for (NSString *key in options) {
+        id value = [options objectForKey:key];
+        NSString *property = [cookiePropertiesMap objectForKey:key];
+        if (value && property) {
+            [properties setObject:value forKey:property];
+        }
+    }
+    return properties;
+}
+
 @end

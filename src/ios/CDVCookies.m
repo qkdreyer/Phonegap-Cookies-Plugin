@@ -46,10 +46,8 @@
     NSDictionary *properties = [self mapCookieProperties:options];
     NSLog(@"Setting cookie with properties: %@", properties);
 
-    NSHTTPCookie *cookie;
-    NSHTTPCookieStorage *cookieJar = [NSHTTPCookieStorage sharedHTTPCookieStorage];
-    cookie = [NSHTTPCookie cookieWithProperties:properties];
-    [cookieJar setCookie:cookie];
+    NSHTTPCookie *cookie = [NSHTTPCookie cookieWithProperties:properties];
+    [[NSHTTPCookieStorage sharedHTTPCookieStorage] setCookie:cookie];
 }
 
 -(NSDictionary*)mapCookieProperties:(NSDictionary*)options {
@@ -71,6 +69,10 @@
     NSMutableDictionary* properties = [NSMutableDictionary dictionary];
     for (NSString *key in options) {
         id value = [options objectForKey:key];
+        if ([key isEqual: @"expires"]) {
+            NSTimeInterval time = (int) value;
+            value = [[NSDate date] dateByAddingTimeInterval:time];
+        }
         NSString *property = [cookiePropertiesMap objectForKey:key];
         if (value && property) {
             [properties setObject:value forKey:property];
